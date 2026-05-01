@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Intelligence Engine — StepOne AI Buildathon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --border: #d8d4cc;
+    --text: #1a1916;
+    --text2: #6b6860;
+    --text3: #9a9790;
+    --amber: #c97d1a;
+    --amber-light: #fdf3e3;
+    --amber-border: #f0c472;
+    --green: #2a7a4f;
+    --green-light: #e8f5ee;
+    --red: #c0392b;
+    --red-light: #fde8e6;
+    --blue: #1a5fa8;
+    --blue-light: #e8f0fb;
+    --font-mono: 'Space Mono', monospace;
+    --font-head: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--text);
+    color: #f5f4f0;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--amber);
+  }
+  .header-title { font-family: var(--font-head); font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+  .header-sub { font-family: var(--font-mono); font-size: 11px; color: #9a9790; margin-top: 2px; }
+  .header-badge {
+    background: var(--amber);
+    color: var(--text);
+    font-family: var(--font-head);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* MAIN LAYOUT */
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+  /* INPUT PANEL */
+  #input-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 40px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .panel-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--amber);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .panel-title {
+    font-family: var(--font-head);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .panel-desc {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 32px;
+    line-height: 1.8;
+  }
+  .form-row { margin-bottom: 20px; }
+  .form-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--amber); }
+  .form-input::placeholder { color: var(--text3); }
+
+  .run-btn {
+    width: 100%;
+    padding: 14px 24px;
+    background: var(--text);
+    color: #f5f4f0;
+    border: none;
+    border-radius: 3px;
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.15s;
+    text-transform: uppercase;
+  }
+  .run-btn:hover { background: #2d2c28; }
+  .run-btn:disabled { background: var(--text2); cursor: not-allowed; }
+
+  .sample-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .sample-chip {
+    padding: 5px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 11px;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    transition: all 0.15s;
+  }
+  .sample-chip:hover { border-color: var(--amber); color: var(--amber); }
+
+  /* PROGRESS PANEL */
+  #progress-panel { display: none; }
+  .progress-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .company-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 16px;
+  }
+  .company-badge-name {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .company-badge-cat { font-size: 11px; color: var(--text2); }
+
+  .phases-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    transition: border-color 0.3s;
+  }
+  .phase-card.active { border-color: var(--amber); }
+  .phase-card.done { border-color: var(--green); }
+  .phase-card.error { border-color: var(--red); }
+
+  .phase-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .phase-name {
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .phase-items { font-size: 10px; color: var(--text2); line-height: 1.8; }
+  .phase-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 12px;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+  .phase-status.waiting { background: var(--surface2); color: var(--text3); }
+  .phase-status.active { background: var(--amber-light); color: var(--amber); }
+  .phase-status.done { background: var(--green-light); color: var(--green); }
+  .phase-status.error { background: var(--red-light); color: var(--red); }
+
+  .pulse {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .log-box {
+    background: var(--text);
+    border-radius: 4px;
+    padding: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #9a9790;
+    height: 140px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+  .log-line { margin-bottom: 2px; }
+  .log-line.info { color: #b0a898; }
+  .log-line.success { color: #5fcf8a; }
+  .log-line.error { color: #f07070; }
+  .log-line.amber { color: #f0c472; }
+
+  /* RESULTS PANEL */
+  #results-panel { display: none; }
+
+  .results-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .results-company {
+    font-family: var(--font-head);
+    font-size: 26px;
+    font-weight: 800;
+  }
+  .results-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .new-search-btn {
+    padding: 10px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--font-head);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .new-search-btn:hover { border-color: var(--amber); }
+
+  /* TABS */
+  .tabs-nav {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    padding-bottom: 0;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 8px 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    color: var(--text2);
+    white-space: nowrap;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* SECTION CARDS */
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .section-card-title {
+    font-family: var(--font-head);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--amber);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-item { }
+  .info-key { font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .info-val { font-size: 13px; color: var(--text); }
+
+  .tag { display: inline-block; padding: 3px 9px; border-radius: 2px; font-size: 10px; margin: 2px; }
+  .tag-amber { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-blue { background: var(--blue-light); color: var(--blue); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+
+  .competitor-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .competitor-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .str-gap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+
+  .contact-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 3px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .contact-name { font-family: var(--font-head); font-size: 16px; font-weight: 700; }
+  .contact-title { font-size: 11px; color: var(--amber); margin-bottom: 10px; }
+  .contact-detail { font-size: 11px; color: var(--text2); margin-top: 4px; }
+  .contact-detail a { color: var(--blue); text-decoration: none; }
+
+  .outreach-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 20px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    color: var(--text);
+    font-family: var(--font-mono);
+  }
+  .outreach-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 10px;
+  }
+  .subject-line {
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .watchout-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .watchout-item:last-child { border-bottom: none; }
+  .watchout-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--red-light);
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .watchout-text { font-size: 12px; }
+  .watchout-risk { font-weight: 700; color: var(--text); margin-bottom: 3px; font-family: var(--font-head); font-size: 13px; }
+  .watchout-insight { color: var(--text2); }
+
+  .tracking-metric {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tracking-metric-name { font-family: var(--font-head); font-size: 13px; font-weight: 600; }
+  .tracking-metric-type { font-size: 10px; color: var(--text2); margin-top: 2px; }
+  .tracking-metric-impl { font-size: 11px; color: var(--blue); text-align: right; max-width: 50%; }
+
+  .activity-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-date { color: var(--amber); font-size: 10px; padding-top: 2px; }
+  .activity-title { font-weight: 700; font-family: var(--font-head); font-size: 13px; margin-bottom: 3px; }
+  .activity-desc { color: var(--text2); }
+
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--bg); border: 1px solid var(--border); border-radius: 3px; padding: 16px; }
+  .stat-label { font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .stat-val { font-family: var(--font-head); font-size: 20px; font-weight: 800; color: var(--text); }
+
+  .copy-btn {
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    cursor: pointer;
+    color: var(--text2);
+    float: right;
+    margin-top: -4px;
+  }
+  .copy-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+  .prose { font-size: 13px; line-height: 1.9; color: var(--text2); }
+  .prose strong { color: var(--text); font-family: var(--font-head); }
+
+  .no-data { color: var(--text3); font-size: 12px; font-style: italic; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .phases-grid { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
+    .str-gap-grid { grid-template-columns: 1fr; }
+  }
+
+  /* SCROLLBAR */
+  .log-box::-webkit-scrollbar { width: 4px; }
+  .log-box::-webkit-scrollbar-track { background: transparent; }
+  .log-box::-webkit-scrollbar-thumb { background: #3a3a38; border-radius: 2px; }
+
+  .arch-diagram {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .arch-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 14px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+  }
+  .arch-box.highlight { border-color: var(--amber); background: var(--amber-light); }
+  .arch-arrow { color: var(--text3); font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">MARKET INTELLIGENCE ENGINE</div>
+    <div class="header-sub">StepOne AI Buildathon · Autonomous Research System</div>
+  </div>
+  <div class="header-badge">LIVE SYSTEM</div>
+</div>
+
+<div class="main">
+
+  <!-- INPUT PANEL -->
+  <div id="input-panel">
+    <div class="panel-eyebrow">// INITIALIZE INTELLIGENCE SCAN</div>
+    <div class="panel-title">Drop a company name.<br>We derive everything else.</div>
+    <div class="panel-desc">
+      This system performs autonomous 10-point market intelligence<br>
+      across brand, competitors, decision-makers &amp; personalized outreach.
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Company Name</label>
+      <input class="form-input" id="inp-company" type="text" placeholder="e.g. Mamaearth, Zomato, Tanishq..." />
+    </div>
+    <div class="form-row">
+      <label class="form-label">One-line Category</label>
+      <input class="form-input" id="inp-category" type="text" placeholder="e.g. D2C skincare brand, food delivery app, jewellery retail..." />
+    </div>
+
+    <button class="run-btn" id="run-btn" onclick="startEngine()">
+      RUN INTELLIGENCE SCAN →
+    </button>
+
+    <div>
+      <div style="font-size:10px;color:var(--text3);margin-top:20px;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;">Quick Load</div>
+      <div class="sample-row">
+        <span class="sample-chip" onclick="loadSample('Mamaearth','D2C skincare and personal care brand')">Mamaearth</span>
+        <span class="sample-chip" onclick="loadSample('Nykaa','Beauty and fashion e-commerce platform')">Nykaa</span>
+        <span class="sample-chip" onclick="loadSample('boAt','Consumer electronics and lifestyle brand')">boAt</span>
+        <span class="sample-chip" onclick="loadSample('Swiggy','Online food delivery platform')">Swiggy</span>
+        <span class="sample-chip" onclick="loadSample('Manyavar','Indian ethnic wear and wedding fashion brand')">Manyavar</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS PANEL -->
+  <div id="progress-panel">
+    <div class="progress-header">
+      <div class="company-badge">
+        <div class="company-badge-name" id="prog-company">—</div>
+        <div class="company-badge-cat" id="prog-category">—</div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);font-family:var(--font-mono);">Autonomous intelligence scan in progress...</div>
+    </div>
+
+    <div class="phases-grid">
+      <div class="phase-card" id="phase1-card">
+        <div class="phase-num">PHASE 01</div>
+        <div class="phase-name">Market Intelligence</div>
+        <div class="phase-items">
+          → Company Overview<br>
+          → Market Position<br>
+          → Competitor Mapping<br>
+          → Brand Activity<br>
+          → Events Footprint<br>
+          → Strategic Watchouts
+        </div>
+        <div class="phase-status waiting" id="phase1-status">
+          <span>Waiting</span>
+        </div>
+      </div>
+      <div class="phase-card" id="phase2-card">
+        <div class="phase-num">PHASE 02</div>
+        <div class="phase-name">Decision-Maker Intel</div>
+        <div class="phase-items">
+          → Stakeholder Identification<br>
+          → Contact Intelligence<br>
+          → Role Relevance Analysis<br>
+          → Email / LinkedIn / Phone
+        </div>
+        <div class="phase-status waiting" id="phase2-status">
+          <span>Waiting</span>
+        </div>
+      </div>
+      <div class="phase-card" id="phase3-card">
+        <div class="phase-num">PHASE 03</div>
+        <div class="phase-name">Outreach Engine</div>
+        <div class="phase-items">
+          → Personalized LinkedIn DM<br>
+          → Tailored Email Draft<br>
+          → Outreach Tracking Logic<br>
+          → Engagement Metrics
+        </div>
+        <div class="phase-status waiting" id="phase3-status">
+          <span>Waiting</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-box" id="log-box"></div>
+  </div>
+
+  <!-- RESULTS PANEL -->
+  <div id="results-panel">
+    <div class="results-header">
+      <div>
+        <div class="results-company" id="res-company">—</div>
+        <div class="results-meta" id="res-meta">—</div>
+      </div>
+      <button class="new-search-btn" onclick="resetEngine()">↩ NEW SEARCH</button>
+    </div>
+
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('overview')">01 Overview</button>
+      <button class="tab-btn" onclick="switchTab('market')">02 Market Position</button>
+      <button class="tab-btn" onclick="switchTab('competitors')">03 Competitors</button>
+      <button class="tab-btn" onclick="switchTab('activity')">04 Brand Activity</button>
+      <button class="tab-btn" onclick="switchTab('events')">05 Events</button>
+      <button class="tab-btn" onclick="switchTab('watchouts')">06 Watchouts</button>
+      <button class="tab-btn" onclick="switchTab('decisionmakers')">07 Decision-Makers</button>
+      <button class="tab-btn" onclick="switchTab('contacts')">08 Contact Intel</button>
+      <button class="tab-btn" onclick="switchTab('outreach')">09 Outreach</button>
+      <button class="tab-btn" onclick="switchTab('tracking')">10 Tracking</button>
+    </div>
+
+    <!-- TAB: OVERVIEW -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="section-card">
+        <div class="section-card-title">Company Overview</div>
+        <div class="stat-row" id="overview-stats"></div>
+        <div class="info-grid" id="overview-grid"></div>
+        <div style="margin-top:16px;" id="overview-summary"></div>
+      </div>
+    </div>
+
+    <!-- TAB: MARKET POSITION -->
+    <div class="tab-content" id="tab-market">
+      <div class="section-card">
+        <div class="section-card-title">Market Position</div>
+        <div id="market-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB: COMPETITORS -->
+    <div class="tab-content" id="tab-competitors">
+      <div class="section-card">
+        <div class="section-card-title">Competitor Mapping</div>
+        <div id="competitors-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB: BRAND ACTIVITY -->
+    <div class="tab-content" id="tab-activity">
+      <div class="section-card">
+        <div class="section-card-title">Brand Activity — Last 12–24 Months</div>
+        <div id="activity-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB: EVENTS -->
+    <div class="tab-content" id="tab-events">
+      <div class="section-card">
+        <div class="section-card-title">Experiential &amp; Events Footprint</div>
+        <div id="events-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB: WATCHOUTS -->
+    <div class="tab-content" id="tab-watchouts">
+      <div class="section-card">
+        <div class="section-card-title">Strategic Watchouts</div>
+        <div id="watchouts-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB: DECISION MAKERS -->
+    <div class="tab-content" id="tab-decisionmakers">
+      <div class="section-card">
+        <div class="section-card-title">Decision-Maker Identification</div>
+        <div id="decisionmakers-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB: CONTACTS -->
+    <div class="tab-content" id="tab-contacts">
+      <div class="section-card">
+        <div class="section-card-title">Contact Intelligence</div>
+        <div style="background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:10px 14px;font-size:11px;color:var(--amber);margin-bottom:16px;font-family:var(--font-mono);">
+          ⚠ Contact details derived from public sources. Verify before outreach. Email formats are pattern-inferred.
+        </div>
+        <div id="contacts-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB: OUTREACH -->
+    <div class="tab-content" id="tab-outreach">
+      <div class="section-card">
+        <div class="section-card-title">Personalized Outreach</div>
+        <div id="outreach-content"></div>
+      </div>
+    </div>
+
+    <!-- TAB: TRACKING -->
+    <div class="tab-content" id="tab-tracking">
+      <div class="section-card">
+        <div class="section-card-title">Outreach Tracking Logic</div>
+        <div id="tracking-content"></div>
+      </div>
+      <div class="section-card">
+        <div class="section-card-title">System Architecture</div>
+        <div class="arch-diagram">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:16px;">End-to-end automated workflow</div>
+          <div class="arch-flow">
+            <div class="arch-box highlight">INPUT<br><span style="font-size:9px;color:var(--text2)">Name + Category</span></div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">WEB SEARCH<br><span style="font-size:9px;color:var(--text2)">Public Data</span></div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">AI ANALYSIS<br><span style="font-size:9px;color:var(--text2)">Intelligence</span></div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">STAKEHOLDER ID<br><span style="font-size:9px;color:var(--text2)">Decision-Makers</span></div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box highlight">OUTREACH<br><span style="font-size:9px;color:var(--text2)">Personalized</span></div>
+          </div>
+          <div class="arch-flow" style="margin-bottom:0">
+            <div class="arch-box">TRACKING PIXEL<br><span style="font-size:9px;color:var(--text2)">Open detection</span></div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">UTM PARAMS<br><span style="font-size:9px;color:var(--text2)">Link tracking</span></div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">CRM SYNC<br><span style="font-size:9px;color:var(--text2)">Status update</span></div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box">FOLLOW-UP LOGIC<br><span style="font-size:9px;color:var(--text2)">Auto-sequence</span></div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-box highlight">DASHBOARD<br><span style="font-size:9px;color:var(--text2)">Analytics</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /results-panel -->
+</div><!-- /main -->
+
+<script>
+let globalData = {};
+
+function loadSample(company, category) {
+  document.getElementById('inp-company').value = company;
+  document.getElementById('inp-category').value = category;
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function log(msg, type = 'info') {
+  const box = document.getElementById('log-box');
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  const ts = new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  line.textContent = `[${ts}] ${msg}`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function setPhase(num, state, label) {
+  const card = document.getElementById(`phase${num}-card`);
+  const status = document.getElementById(`phase${num}-status`);
+  card.className = `phase-card ${state}`;
+  status.className = `phase-status ${state}`;
+  status.innerHTML = state === 'active'
+    ? `<span class="pulse"></span> <span>${label}</span>`
+    : `<span>${label}</span>`;
+}
+
+async function callClaude(messages, useSearch = false) {
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 4000,
+    messages: messages
+  };
+  if (useSearch) {
+    body.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+  }
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.error?.message || 'API error');
+  }
+  const data = await resp.json();
+
+  let text = '';
+  for (const block of data.content) {
+    if (block.type === 'text') text += block.text;
+  }
+  return text;
+}
+
+function parseJSON(text) {
+  const cleaned = text.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+  const first = cleaned.indexOf('{');
+  const last = cleaned.lastIndexOf('}');
+  if (first === -1) throw new Error('No JSON found');
+  return JSON.parse(cleaned.slice(first, last + 1));
+}
+
+async function startEngine() {
+  const company = document.getElementById('inp-company').value.trim();
+  const category = document.getElementById('inp-category').value.trim();
+
+  if (!company || !category) {
+    alert('Please enter both company name and category.');
+    return;
+  }
+
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('input-panel').style.display = 'none';
+  document.getElementById('progress-panel').style.display = 'block';
+
+  document.getElementById('prog-company').textContent = company;
+  document.getElementById('prog-category').textContent = category;
+
+  log(`Initializing Market Intelligence Engine for "${company}"`, 'amber');
+  log(`Category: ${category}`, 'info');
+
+  globalData = { company, category };
+
+  // PHASE 1
+  try {
+    setPhase(1, 'active', 'Scanning...');
+    log('Phase 01 → Performing web search for market intelligence...', 'amber');
+
+    const p1prompt = `You are a professional market intelligence analyst with access to web search. Research "${company}" (${category}) thoroughly using web search.
+
+Return ONLY a valid JSON object with this EXACT structure:
+{
+  "company_overview": {
+    "business_model": "2-3 sentence description",
+    "scale": "revenue range, employee count, market cap if listed",
+    "positioning": "brand positioning statement",
+    "founded": "year",
+    "headquarters": "city, country",
+    "listing_status": "listed/private/unicorn etc",
+    "key_products": ["product1", "product2"]
+  },
+  "market_position": {
+    "brand_perception": "how consumers perceive this brand",
+    "market_share": "estimated market share or position",
+    "recent_shifts": "notable recent changes in positioning or perception",
+    "target_segment": "primary customer segment",
+    "usp": "core differentiator"
+  },
+  "competitors": [
+    {
+      "name": "competitor name",
+      "brand_activity": "recent campaigns or marketing moves",
+      "strengths": "2-3 key strengths",
+      "gaps": "2-3 gaps vs ${company}"
+    }
+  ],
+  "brand_activity": [
+    {
+      "date": "Month YYYY",
+      "title": "Campaign/Launch/Initiative name",
+      "description": "What they did and impact"
+    }
+  ],
+  "events_footprint": [
+    {
+      "event": "Event name or type",
+      "format": "physical/virtual/hybrid + scale",
+      "description": "What happened and outcomes"
+    }
+  ],
+  "strategic_watchouts": [
+    {
+      "risk": "Risk/tension title",
+      "insight": "Insight relevant before engaging this brand"
+    }
+  ]
+}
+
+Use web search to find accurate, current data. Return ONLY valid JSON, no explanation.`;
+
+    const p1text = await callClaude([{ role:'user', content: p1prompt }], true);
+    log('Phase 01 → Web search complete. Parsing intelligence...', 'info');
+
+    const p1data = parseJSON(p1text);
+    globalData.phase1 = p1data;
+
+    setPhase(1, 'done', 'Complete ✓');
+    log('Phase 01 → Market intelligence extracted successfully.', 'success');
+
+  } catch(e) {
+    setPhase(1, 'error', 'Error');
+    log(`Phase 01 ERROR: ${e.message}`, 'error');
+    globalData.phase1 = null;
+  }
+
+  // PHASE 2
+  try {
+    setPhase(2, 'active', 'Identifying...');
+    log('Phase 02 → Searching for decision-makers and contact intelligence...', 'amber');
+
+    const ctx = globalData.phase1
+      ? `Company: ${company}. Category: ${category}. Scale: ${globalData.phase1.company_overview?.scale || ''}. HQ: ${globalData.phase1.company_overview?.headquarters || ''}.`
+      : `Company: ${company}. Category: ${category}.`;
+
+    const p2prompt = `You are a B2B sales researcher. Use web search to identify real decision-makers at "${company}" (${category}) who would be relevant for an experiential marketing and brand events agency to reach out to.
+
+${ctx}
+
+Return ONLY a valid JSON object:
+{
+  "decision_makers": [
+    {
+      "name": "Full Name (use 'Not publicly available' if unknown)",
+      "title": "Exact job title",
+      "role_relevance": "Why this person matters for marketing/events outreach",
+      "linkedin_url": "linkedin.com/in/handle or 'Search: Name + Company'",
+      "email_pattern": "pattern like firstname@company.com based on known format, or 'Unknown'",
+      "email_guess": "best guess email",
+      "phone": "if publicly available, else 'Not public'"
+    }
+  ],
+  "org_email_pattern": "The company's standard email format e.g. firstname.lastname@company.com",
+  "contact_notes": "Any relevant notes about the company's communications or PR contacts"
+}
+
+Find 4-6 relevant stakeholders (CMO, VP Marketing, Brand Director, Head of Experiential, CXO etc). Use web search to find real names. Return ONLY valid JSON.`;
+
+    const p2text = await callClaude([{ role:'user', content: p2prompt }], true);
+    log('Phase 02 → Decision-maker profiles identified. Parsing...', 'info');
+
+    const p2data = parseJSON(p2text);
+    globalData.phase2 = p2data;
+
+    setPhase(2, 'done', 'Complete ✓');
+    log(`Phase 02 → ${p2data.decision_makers?.length || 0} decision-makers identified.`, 'success');
+
+  } catch(e) {
+    setPhase(2, 'error', 'Error');
+    log(`Phase 02 ERROR: ${e.message}`, 'error');
+    globalData.phase2 = null;
+  }
+
+  // PHASE 3
+  try {
+    setPhase(3, 'active', 'Drafting...');
+    log('Phase 03 → Generating personalized outreach and tracking logic...', 'amber');
+
+    const intelligenceSummary = JSON.stringify({
+      company,
+      category,
+      overview: globalData.phase1?.company_overview,
+      market: globalData.phase1?.market_position,
+      brand_activity: globalData.phase1?.brand_activity?.slice(0,3),
+      events: globalData.phase1?.events_footprint?.slice(0,2),
+      primary_contact: globalData.phase2?.decision_makers?.[0]
+    });
+
+    const p3prompt = `You are an expert B2B outreach copywriter for StepOne, a leading experiential marketing and large-scale brand events company in India. StepOne executes IPL activations, product launches, mall events, and national brand experiences.
+
+Based on this intelligence:
+${intelligenceSummary}
+
+Create highly personalized outreach. Return ONLY valid JSON:
+{
+  "linkedin_message": "A 150-200 word LinkedIn message to the primary decision-maker. Reference specific brand activity. Offer a specific value angle. Natural, not salesy.",
+  "email_subject": "A compelling email subject line (under 60 chars)",
+  "email_body": "A full email (250-350 words). Reference brand context, recent activity, and a specific experiential opportunity angle. Include a clear CTA. Professional tone.",
+  "tracking_metrics": [
+    {
+      "metric": "Metric name",
+      "type": "email/linkedin/CRM",
+      "implementation": "How to technically implement this"
+    }
+  ],
+  "tracking_implementation": "2-3 paragraphs on the technical outreach tracking system: tracking pixels, UTM parameters, follow-up sequences, CRM integration, response scoring.",
+  "follow_up_sequence": [
+    {
+      "day": "Day X",
+      "action": "What to do",
+      "channel": "email/linkedin/call"
+    }
+  ]
+}
+
+Make the outreach specific to ${company}'s actual brand activity and positioning. Return ONLY valid JSON.`;
+
+    const p3text = await callClaude([{ role:'user', content: p3prompt }]);
+    log('Phase 03 → Outreach drafts generated. Finalizing...', 'info');
+
+    const p3data = parseJSON(p3text);
+    globalData.phase3 = p3data;
+
+    setPhase(3, 'done', 'Complete ✓');
+    log('Phase 03 → Personalized outreach and tracking logic ready.', 'success');
+
+  } catch(e) {
+    setPhase(3, 'error', 'Error');
+    log(`Phase 03 ERROR: ${e.message}`, 'error');
+    globalData.phase3 = null;
+  }
+
+  log('━━━ INTELLIGENCE SCAN COMPLETE ━━━', 'success');
+  log('Rendering results dashboard...', 'amber');
+
+  setTimeout(() => renderResults(), 800);
+}
+
+function renderResults() {
+  const { company, category, phase1: p1, phase2: p2, phase3: p3 } = globalData;
+
+  document.getElementById('progress-panel').style.display = 'none';
+  document.getElementById('results-panel').style.display = 'block';
+
+  document.getElementById('res-company').textContent = company;
+  document.getElementById('res-meta').textContent = `${category} · Intelligence report generated ${new Date().toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'})}`;
+
+  // TAB 1: OVERVIEW
+  if (p1?.company_overview) {
+    const o = p1.company_overview;
+    document.getElementById('overview-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">Founded</div><div class="stat-val">${o.founded || '—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Headquarters</div><div class="stat-val" style="font-size:15px">${o.headquarters || '—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Scale</div><div class="stat-val" style="font-size:13px">${o.scale || '—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Status</div><div class="stat-val" style="font-size:14px">${o.listing_status || '—'}</div></div>
+    `;
+    document.getElementById('overview-grid').innerHTML = `
+      <div class="info-item"><div class="info-key">Business Model</div><div class="info-val">${o.business_model || '—'}</div></div>
+      <div class="info-item"><div class="info-key">Brand Positioning</div><div class="info-val">${o.positioning || '—'}</div></div>
+    `;
+    if (o.key_products?.length) {
+      document.getElementById('overview-summary').innerHTML = `
+        <div style="font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Key Products / Services</div>
+        ${o.key_products.map(p => `<span class="tag tag-amber">${p}</span>`).join('')}
+      `;
+    }
+  }
+
+  // TAB 2: MARKET POSITION
+  if (p1?.market_position) {
+    const m = p1.market_position;
+    document.getElementById('market-content').innerHTML = `
+      <div class="info-grid" style="margin-bottom:16px">
+        <div class="info-item"><div class="info-key">Brand Perception</div><div class="info-val">${m.brand_perception || '—'}</div></div>
+        <div class="info-item"><div class="info-key">Market Share</div><div class="info-val">${m.market_share || '—'}</div></div>
+        <div class="info-item"><div class="info-key">Target Segment</div><div class="info-val">${m.target_segment || '—'}</div></div>
+        <div class="info-item"><div class="info-key">Core USP</div><div class="info-val">${m.usp || '—'}</div></div>
+      </div>
+      <div class="info-item" style="background:var(--amber-light);border:1px solid var(--amber-border);border-radius:3px;padding:14px">
+        <div class="info-key" style="color:var(--amber)">Recent Market Shifts</div>
+        <div class="info-val" style="margin-top:6px">${m.recent_shifts || '—'}</div>
+      </div>
+    `;
+  }
+
+  // TAB 3: COMPETITORS
+  if (p1?.competitors?.length) {
+    document.getElementById('competitors-content').innerHTML = p1.competitors.map((c, i) => `
+      <div class="competitor-card">
+        <div class="competitor-name">${i + 1}. ${c.name}</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">${c.brand_activity || ''}</div>
+        <div class="str-gap-grid">
+          <div>
+            <div style="font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Strengths</div>
+            <div style="font-size:12px">${c.strengths || '—'}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--red);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Gaps vs ${company}</div>
+            <div style="font-size:12px">${c.gaps || '—'}</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // TAB 4: BRAND ACTIVITY
+  if (p1?.brand_activity?.length) {
+    document.getElementById('activity-content').innerHTML = p1.brand_activity.map(a => `
+      <div class="activity-item">
+        <div class="activity-date">${a.date || '—'}</div>
+        <div>
+          <div class="activity-title">${a.title || '—'}</div>
+          <div class="activity-desc">${a.description || '—'}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // TAB 5: EVENTS
+  if (p1?.events_footprint?.length) {
+    document.getElementById('events-content').innerHTML = p1.events_footprint.map(e => `
+      <div class="competitor-card">
+        <div class="competitor-name">${e.event || '—'}</div>
+        <div style="margin-bottom:6px"><span class="tag tag-blue">${e.format || '—'}</span></div>
+        <div style="font-size:12px;color:var(--text2)">${e.description || '—'}</div>
+      </div>
+    `).join('');
+  } else {
+    document.getElementById('events-content').innerHTML = `<p class="no-data">No specific events data found via web search for this brand.</p>`;
+  }
+
+  // TAB 6: WATCHOUTS
+  if (p1?.strategic_watchouts?.length) {
+    document.getElementById('watchouts-content').innerHTML = p1.strategic_watchouts.map(w => `
+      <div class="watchout-item">
+        <div class="watchout-icon">!</div>
+        <div class="watchout-text">
+          <div class="watchout-risk">${w.risk || '—'}</div>
+          <div class="watchout-insight">${w.insight || '—'}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // TAB 7: DECISION MAKERS
+  if (p2?.decision_makers?.length) {
+    document.getElementById('decisionmakers-content').innerHTML = p2.decision_makers.map(dm => `
+      <div class="contact-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div>
+            <div class="contact-name">${dm.name || '—'}</div>
+            <div class="contact-title">${dm.title || '—'}</div>
+          </div>
+          <span class="tag tag-amber" style="white-space:nowrap;flex-shrink:0">Key Stakeholder</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:8px;padding:10px;background:var(--bg);border-radius:3px">
+          <strong style="color:var(--text);font-family:var(--font-head);font-size:12px">Why reach out:</strong> ${dm.role_relevance || '—'}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // TAB 8: CONTACTS
+  if (p2?.decision_makers?.length) {
+    document.getElementById('contacts-content').innerHTML = `
+      ${p2.org_email_pattern ? `<div style="background:var(--green-light);border:1px solid #b0dfc0;border-radius:3px;padding:10px 14px;font-size:11px;color:var(--green);margin-bottom:16px;font-family:var(--font-mono)">Org email pattern: <strong>${p2.org_email_pattern}</strong></div>` : ''}
+      ${p2.decision_makers.map(dm => `
+        <div class="contact-card">
+          <div class="contact-name">${dm.name || '—'}</div>
+          <div class="contact-title">${dm.title || '—'}</div>
+          <div class="contact-detail">✉ Email: ${dm.email_guess || dm.email_pattern || 'Pattern: ' + (p2.org_email_pattern || 'Unknown')}</div>
+          <div class="contact-detail">🔗 LinkedIn: <a href="https://${dm.linkedin_url?.replace('https://','')}" target="_blank">${dm.linkedin_url || 'Search by name'}</a></div>
+          <div class="contact-detail">📞 Phone: ${dm.phone || 'Not publicly available'}</div>
+        </div>
+      `).join('')}
+      ${p2.contact_notes ? `<div style="margin-top:12px;font-size:11px;color:var(--text2);padding:12px;background:var(--bg);border-radius:3px;border-left:3px solid var(--amber)"><strong>Notes:</strong> ${p2.contact_notes}</div>` : ''}
+    `;
+  }
+
+  // TAB 9: OUTREACH
+  if (p3) {
+    document.getElementById('outreach-content').innerHTML = `
+      <div style="margin-bottom:24px">
+        <div class="outreach-label">LinkedIn Direct Message</div>
+        <button class="copy-btn" onclick="copyText('linkedin-text', this)">COPY</button>
+        <div class="outreach-block" id="linkedin-text">${p3.linkedin_message || '—'}</div>
+      </div>
+      <div>
+        <div class="outreach-label">Email Outreach</div>
+        <button class="copy-btn" onclick="copyText('email-text', this)">COPY</button>
+        <div class="outreach-block">
+          <div class="subject-line">Subject: ${p3.email_subject || '—'}</div>
+          <div id="email-text">${p3.email_body || '—'}</div>
+        </div>
+      </div>
+      ${p3.follow_up_sequence?.length ? `
+        <div style="margin-top:24px">
+          <div class="outreach-label">Follow-Up Sequence</div>
+          ${p3.follow_up_sequence.map(f => `
+            <div class="tracking-metric">
+              <div>
+                <div class="tracking-metric-name">${f.day}</div>
+                <div class="tracking-metric-type">${f.action}</div>
+              </div>
+              <div class="tracking-metric-impl"><span class="tag tag-blue">${f.channel}</span></div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    `;
+  }
+
+  // TAB 10: TRACKING
+  if (p3) {
+    document.getElementById('tracking-content').innerHTML = `
+      ${p3.tracking_metrics?.length ? p3.tracking_metrics.map(m => `
+        <div class="tracking-metric">
+          <div>
+            <div class="tracking-metric-name">${m.metric}</div>
+            <div class="tracking-metric-type">${m.type}</div>
+          </div>
+          <div class="tracking-metric-impl">${m.implementation}</div>
+        </div>
+      `).join('') : ''}
+      ${p3.tracking_implementation ? `
+        <div style="margin-top:16px;padding:16px;background:var(--bg);border-radius:3px;border:1px solid var(--border);font-size:12px;color:var(--text2);line-height:1.9">
+          <div style="font-size:10px;color:var(--amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Implementation Guide</div>
+          ${p3.tracking_implementation}
+        </div>
+      ` : ''}
+    `;
+  }
+}
+
+function copyText(id, btn) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    btn.textContent = 'COPIED ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function resetEngine() {
+  document.getElementById('results-panel').style.display = 'none';
+  document.getElementById('progress-panel').style.display = 'none';
+  document.getElementById('input-panel').style.display = 'block';
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('log-box').innerHTML = '';
+  document.getElementById('inp-company').value = '';
+  document.getElementById('inp-category').value = '';
+  ['phase1','phase2','phase3'].forEach(p => {
+    setPhase(p.replace('phase',''), 'waiting', 'Waiting');
+  });
+  globalData = {};
+  // Reset tabs
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-overview').classList.add('active');
+  document.querySelector('.tab-btn').classList.add('active');
+}
+</script>
+</body>
+</html>

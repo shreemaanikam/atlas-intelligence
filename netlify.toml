@@ -1,0 +1,47 @@
+# ATLAS Intelligence Engine — Netlify Configuration
+
+[build]
+  # No build command needed — pure static HTML
+  publish = "."
+  command = ""
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# ─── Redirect rules ───
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ─── HTTP Headers ───
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    
+    # CORS for API calls (allows browser-direct LLM API calls)
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, x-api-key, anthropic-version, anthropic-dangerous-direct-browser-access"
+    
+    # Cache control
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    # Don't cache the main HTML
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# ─── Environment (for future server-side use) ───
+# [context.production.environment]
+#   ANTHROPIC_API_KEY = ""  # Set in Netlify dashboard
+#   OPENAI_API_KEY = ""
+#   GEMINI_API_KEY = ""
+#   GROK_API_KEY = ""

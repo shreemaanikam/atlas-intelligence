@@ -1,0 +1,89 @@
+name: Deploy ATLAS to GitHub Pages
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # ─── Validate ───────────────────────────────────────────
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify index.html exists
+        run: |
+          if [ ! -f "index.html" ]; then
+            echo "❌ index.html not found!"
+            exit 1
+          fi
+          echo "✅ index.html found ($(wc -c < index.html) bytes)"
+
+      - name: Check HTML structure
+        run: |
+          if grep -q "ATLAS" index.html; then
+            echo "✅ ATLAS branding verified"
+          else
+            echo "⚠️  ATLAS branding not found"
+          fi
+          if grep -q "api.anthropic.com" index.html; then
+            echo "✅ Claude API integration found"
+          fi
+          if grep -q "api.openai.com" index.html; then
+            echo "✅ OpenAI API integration found"
+          fi
+          if grep -q "generativelanguage.googleapis.com" index.html; then
+            echo "✅ Gemini API integration found"
+          fi
+          if grep -q "api.x.ai" index.html; then
+            echo "✅ Grok API integration found"
+          fi
+
+  # ─── Deploy to GitHub Pages ─────────────────────────────
+  deploy:
+    needs: validate
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Post deployment URL
+        run: |
+          echo "🚀 ATLAS Intelligence Engine deployed!"
+          echo "📍 URL: ${{ steps.deployment.outputs.page_url }}"
+          echo ""
+          echo "Next steps:"
+          echo "1. Open the URL above"
+          echo "2. Click 'API Keys' in the top right"
+          echo "3. Add your Claude API key (required)"
+          echo "4. Optionally add OpenAI, Gemini, Grok keys"
+          echo "5. Run your first intelligence scan!"
